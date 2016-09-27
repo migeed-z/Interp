@@ -1,4 +1,4 @@
-
+{-# LANGUAGE GADTs #-}
 
 module Interp where
 
