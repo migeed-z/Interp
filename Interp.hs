@@ -29,20 +29,20 @@ data Term a where
 
 type Env a = [(String, a)]
 
-lookupEnv :: String -> Env a ->  a
-lookupEnv n [] = error("Unbound variable " ++ n)
+env0 :: Env a
+env0 = []
+
+lookupEnv                     :: String -> Env a ->  a
+lookupEnv n []                = error("Unbound variable " ++ n)
 lookupEnv n ((name, val):env) = if n == name then val else lookupEnv n env
 
 
-interp :: Term a ->  Env b -> a
-interp (Num i) _   = i
-interp (Bool i) _  = i
+interp               :: Term a ->  Env b -> a
+interp (Num i) _     = i
+interp (Bool i) _    = i
 interp (Add x y) env = (interp x env) + (interp y env)
 interp (Gt  x y) env = (interp x env) > (interp y env)
 interp (If x y z)env = if (interp x env) then (interp y env) else (interp z env)
-
-env0 :: Env a
-env0 = []
 
 test0 :: [Bool]
 test0 = [ 1     == interp (Num 1) env0,
