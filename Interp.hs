@@ -8,6 +8,8 @@ data Term a where
       -> Term Int
   Bool:: Bool
       -> Term Bool
+  Var :: Term String
+      -> Term a
   Add :: Term Int
       -> Term Int
       -> Term Int
@@ -18,21 +20,25 @@ data Term a where
       -> Term a
       -> Term a
       -> Term a
+  Lam :: String
+      -> Term a
+      -> Term a
+  App :: Term a
+      -> Term a
+      -> Term a
+    
+type Env a = [(String, a)]
+
+lookupEnv :: String -> Env a ->  a
+lookupEnv n [] = error("Unbound variable " ++ n)
+lookupEnv n ((name, val):env) = if n == name then val else lookupEnv n env
 
 
-interp :: Term a -> a
-interp (Num i)   = i
-interp (Bool i)  = i
-interp (Add x y) = interp x + interp y
-interp (Gt  x y) = interp x > interp y
-interp (If x y z) = if (interp x) then (interp y) else (interp z)
+interp :: Term a ->  Env b -> a
+interp (Num i) _   = i
+interp (Bool i) _  = i
+interp (Add x y) env = (interp x env) + (interp y env)
+interp (Gt  x y) env = (interp x env) > (interp y env)
+interp (If x y z)env = if (interp x env) then (interp y env) else (interp z env)
 
 
-test0 :: [Bool]
-
-test0 = [ 1     == interp(Num 1),
-          False == interp(Bool False),
-          3     == interp(Add (Num 1) (Num 2)),
-          True  == interp(Gt (Num 3) (Num 2)),
-          True  == interp(If (Bool True) (Bool True) (Bool False)),
-          3     == interp(If (Bool False) (Num 1) (Num 3))]
