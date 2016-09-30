@@ -2,59 +2,44 @@
 
 module Interp where
 
-data Term a where
+data Term env a where
 
   Num :: Int
-      -> Term Int
+      -> Term env Int  
   Bool:: Bool
-      -> Term Bool
-  Var :: String
-      -> Term a
-  Add :: Term Int
-      -> Term Int
-      -> Term Int
-  Gt  :: Term Int
-      -> Term Int
-      -> Term Bool
-  If  :: Term Bool
-      -> Term a
-      -> Term a
-      -> Term a
-  Lam :: String
-      -> Term a
-      -> Term a
-  App :: Term a
-      -> Term a
-      -> Term a
+      -> Term env Bool
+  Add :: Term env Int
+      -> Term env Int
+      -> Term env Int
+  Gt  :: Term env Int
+      -> Term env Int
+      -> Term env Bool
+  If  :: Term env Bool
+      -> Term env a
+      -> Term env a
+      -> Term env a
+  Var :: VarT env a
+      -> Term env a
 
-type Env a = [(String, a)]
+data VarT env a where
+  Z :: VarT (b, env') b
+  S :: VarT env' b
+    -> VarT (c, end') b
 
-env0 :: Env a
-env0 = []
-
-extendEnv              :: String -> a -> Env a -> Env a
-extendEnv name val env = ((name, val):env)
-
-lookupEnv                     :: String -> Env a ->  a
-lookupEnv n []                = error("Unbound variable " ++ n)
-lookupEnv n ((name, val):env) = if n == name then val else lookupEnv n env
+  
+interp :: Term env a -> a
+interp (Num i)   = i
+interp (Bool i)  = i
+interp (Add x y) = interp x + interp y
+interp (Gt  x y) = interp x > interp y
+interp (If x y z) = if (interp x) then (interp y) else (interp z)
 
 
-interp                      :: Term a -> Env a -> a
-interp (Num i)          _   = i
-interp (Bool i)         _   = i
-interp (Add x y)        env = (interp x env) + (interp y env)
-interp (Gt  x y)        env = (interp x env) > (interp y env)
-interp (If x y z)       env = if (interp x env) then (interp y env) else (interp z env)
-interp (Var x)          env = lookupEnv x env
---interp (Lam param body) env =
---interp (App x y)        env =
+-- test0 :: [Bool]
 
-test0 :: [Bool]
-test0 = [ 1     == interp (Num 1) env0,
-          False == interp (Bool False) env0,
-          3     == interp (Add (Num 1) (Num 2)) env0,
-          True  == interp (Gt (Num 3) (Num 2)) env0,
-          True  == interp (If (Bool True) (Bool True) (Bool False)) env0,
-          3     == interp (If (Bool False) (Num 1) (Num 3)) env0,
-          3     == interp (Var "x") [("x", 3)]]
+-- test0 = [ 1     == interp(Num 1),
+--           False == interp(Bool False),
+--           3     == interp(Add (Num 1) (Num 2)),
+--           True  == interp(Gt (Num 3) (Num 2)),
+--           True  == interp(If (Bool True) (Bool True) (Bool False)),
+--           3     == interp(If (Bool False) (Num 1) (Num 3))]
