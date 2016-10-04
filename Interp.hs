@@ -21,19 +21,25 @@ data Term env a where
   Var :: VarT env a
       -> Term env a
 
-data VarT env a where
+data VarT env b where
   Z :: VarT (b, env') b
   S :: VarT env' b
-    -> VarT (c, end') b
+    -> VarT (c, env') b
 
   
-interp :: Term env a -> a
-interp (Num i)   = i
+interp :: Term env a -> env ->  a
+interp (Num i) ()  = i
 interp (Bool i)  = i
 interp (Add x y) = interp x + interp y
 interp (Gt  x y) = interp x > interp y
 interp (If x y z) = if (interp x) then (interp y) else (interp z)
+interp (Var x)   = lookupEnv x env
 
+lookupEnv :: VarT env a
+          -> env
+          -> a
+lookupEnv Z (a, env) = a
+lookupEnv (S x) (b, env) = lookupEnv x env
 
 -- test0 :: [Bool]
 
