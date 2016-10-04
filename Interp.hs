@@ -28,12 +28,12 @@ data VarT env b where
 
   
 interp :: Term env a -> env ->  a
-interp (Num i) ()  = i
-interp (Bool i)  = i
-interp (Add x y) = interp x + interp y
-interp (Gt  x y) = interp x > interp y
-interp (If x y z) = if (interp x) then (interp y) else (interp z)
-interp (Var x)   = lookupEnv x env
+interp (Num i) env   = i
+interp (Bool i) env  = i
+interp (Add x y) env = (interp x env) + (interp y env)
+interp (Gt  x y) env= (interp x env) > (interp y env)
+interp (If x y z) env= if (interp x env) then (interp y env) else (interp z env)
+interp (Var x) env = lookupEnv x env
 
 lookupEnv :: VarT env a
           -> env
