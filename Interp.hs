@@ -3,7 +3,6 @@
 module Interp where
 
 data Term env a where
-
   Num :: Int               -> Term env Int
   Bool:: Bool              -> Term env Bool
   Add :: Term env Int      -> Term env Int     -> Term env Int
