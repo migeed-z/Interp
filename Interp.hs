@@ -4,32 +4,18 @@ module Interp where
 
 data Term env a where
 
-  Num :: Int
-      -> Term env Int
-  Bool:: Bool
-      -> Term env Bool
-  Add :: Term env Int
-      -> Term env Int
-      -> Term env Int
-  Gt  :: Term env Int
-      -> Term env Int
-      -> Term env Bool
-  If  :: Term env Bool
-      -> Term env a
-      -> Term env a
-      -> Term env a
-  Var :: VarT env a
-      -> Term env a
-  Lam :: Term (a, env) b
-      -> Term env (a -> b)
-  App :: Term env (a -> b)
-      -> Term env a
-      -> Term env b
+  Num :: Int               -> Term env Int
+  Bool:: Bool              -> Term env Bool
+  Add :: Term env Int      -> Term env Int     -> Term env Int
+  Gt  :: Term env Int      -> Term env Int     -> Term env Bool
+  If  :: Term env Bool     -> Term env a       -> Term env a -> Term env a
+  Var :: VarT env a        -> Term env a
+  Lam :: Term (a, env) b   -> Term env (a -> b)
+  App :: Term env (a -> b) -> Term env a       -> Term env b
 
 data VarT env b where
   Z :: VarT (b, env') b
-  S :: VarT env' b
-    -> VarT (c, env') b
+  S :: VarT env' b     -> VarT (c, env') b
 
 
 interp :: Term env a -> env ->  a
@@ -42,9 +28,7 @@ interp (Var x) env    = lookupEnv x env
 interp (Lam e) env    = \x -> interp e (x, env)
 interp (App f x) env  = interp f env (interp x env)
 
-lookupEnv :: VarT env a
-          -> env
-          -> a
+lookupEnv :: VarT env a -> env -> a
 lookupEnv Z (a, env)     = a
 lookupEnv (S x) (b, env) = lookupEnv x env
 
